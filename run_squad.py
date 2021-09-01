@@ -1305,8 +1305,46 @@ def main(_):
     # If running eval on the TPU, you will need to specify the number of
     # steps.
     all_results = []
+    '''
+    import time
+    import sys
+    import numpy as np
+    time_list = []
+    start_time = time.time()
+    steps =0
+    counter =0
+    temp = time.time()
+    for result in estimator.predict(predict_input_fn, yield_single_examples=False):
+        if counter ==0:
+            start_time = time.time()
+            temp = time.time()
+            counter+=1
+            continue
+        steps += result['unique_ids'].shape[0]
+        counter+=1
+        time_list.append(time.time() - temp)
+        temp = time.time()
+    elapsed_time = time.time()-start_time
+    duration_ms = np.array(time_list)
+    mean_latency = np.mean(duration_ms)
+    p99_latency = np.quantile(duration_ms, 0.99)
+    p95_latency = np.quantile(duration_ms, 0.95)
+    p90_latency = np.quantile(duration_ms, 0.90)
+    throughput = steps / float(elapsed_time)
+    tf.logging.info('Total time? {:0.5f}'.format(sum(time_list)))
+    tf.logging.info('Examples: {:0.5f}'.format(float(steps)))
+    tf.logging.info('Time Passed: {:0.5f}s'.format(float(elapsed_time)))
+    tf.logging.info('Throughput: {:0.5f} eps'.format(throughput))
+    tf.logging.info('Mean Latency: {:0.5f}s'.format(mean_latency))
+    tf.logging.info('P90 Latency: {:0.5f}s'.format(p90_latency))
+    tf.logging.info('P95 Latency: {:0.5f}s'.format(p95_latency))
+    tf.logging.info('P99 Latency: {:0.5f}s'.format(p99_latency))
+    
+    sys.exit(0)
+    '''
     for result in estimator.predict(
         predict_input_fn, yield_single_examples=True):
+      tf.logging.info(" Results Evaluated = %d", len(all_results))
       if len(all_results) % 1000 == 0:
         tf.logging.info("Processing example: %d" % (len(all_results)))
       unique_id = int(result["unique_ids"])
